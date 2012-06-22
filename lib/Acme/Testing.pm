@@ -5,7 +5,15 @@ use warnings;
 use Test::More;
 use Class::Monkey;
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
+
+$Acme::Testing::excuses = [
+    'Finalizing test...',
+    'Rejigging the thrompletotes in the cardequanter...',
+    'Test halted temporarily due to BBIAB...',
+    'Test gone AFK momentarily...',
+    'Running CHKDSK... Please wait.'
+];
 
 sub import {
     my $class  = shift;
@@ -16,15 +24,16 @@ sub import {
 }
 
 sub distribute {
-    my $caller = shift;
-    my $base   = $Test::Reuse::base;
+    my $caller  = shift;
+    my $base    = $Test::Reuse::base;
+    my $excuses = $Acme::Testing::excuses;
     localscope: {
         no strict 'refs';
         no warnings;
         for my $method (keys %{"Test::More::"}) {
             unless( substr($method, 0, 1) eq '_' or $method eq uc $method or substr($method, 0, 1) eq uc(substr($method, 0, 1)) or $method eq 'builder')  {
                 after $method => sub {
-                    print "Finalizing test...\n";
+                    print $excuses->[rand(@$excuses)] . "\n";
                     sleep 15;
                 },
                 qw<Test::More>;
